@@ -49,16 +49,23 @@ class ToDoListTableViewController: UITableViewController {
     @IBAction func addNewItemTapped(_ sender: Any) {
         
         let alertController = UIAlertController(title: "Do To List", message: "Do you want to add new Do To List?", preferredStyle: .alert)
-        alertController.addTextField() { textInfo in
-            print(textInfo)
+        alertController.addTextField { textInfo in
+            textInfo.placeholder = "Enter info"
         }
+        alertController.addTextField{
+            textDetail in textDetail.placeholder = "Enter detail"
+        }
+        
         
         let addActionButton = UIAlertAction(title: "Add", style: .default) { alertAction in
             let textField = alertController.textFields?.first
+            let textDetail = alertController.textFields?[1]
             let entity = NSEntityDescription.entity(forEntityName: "ToDo", in: self.manageObjectContext!)
             let list = NSManagedObject(entity: entity!, insertInto: self.manageObjectContext)
             
             list.setValue(textField?.text, forKey: "item")
+            list.setValue(textDetail!, forKey: "detail")
+            
             self.saveData()
             
             
@@ -88,7 +95,10 @@ class ToDoListTableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoCell", for: indexPath)
         
         let todoItem = toDoLists[indexPath.row]
-        cell.textLabel?.text = todoItem.value(forKey: "item") as? String
+        cell.textLabel?.text = todoItem.item
+        cell.detailTextLabel?.text = todoItem.detail
+        cell.accessoryType = todoItem.completed ? .checkmark : .none
+        
         
       //  cell.textLabel?.text = toDos[indexPath.row]
 
@@ -106,17 +116,19 @@ class ToDoListTableViewController: UITableViewController {
     }
     */
 
-    /*
+    
     // Override to support editing the table view.
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
+            manageObjectContext?.delete(toDoLists[indexPath.row])
             // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
+          //  tableView.deleteRows(at: [indexPath], with: .fade)
         } else if editingStyle == .insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
+        }
+        saveData()
     }
-    */
+
 
     /*
     // Override to support rearranging the table view.
